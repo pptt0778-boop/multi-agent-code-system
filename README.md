@@ -47,6 +47,44 @@ uvicorn app.main:app --reload --port 8000
 > the backend automatically falls back to a local subprocess executor so you
 > can still develop and test the orchestration loop.
 
+## Deployment (GitHub Pages)
+
+The frontend is configured for static export (`frontend/next.config.mjs`:
+`output: 'export'`, `basePath: /multi-agent-code-system`). GitHub Pages is
+enabled on this repo (`build_type: workflow`).
+
+**To activate automatic deploys**, add the workflow at `.github/workflows/deploy.yml`
+(copy below or keep it in the repo) with a token that has the `workflow` scope —
+pushing workflow files via git/API requires that scope:
+
+```yaml
+name: Deploy frontend to GitHub Pages
+on: { push: { branches: [main] }, workflow_dispatch: }
+permissions: { contents: read, pages: write, id-token: write }
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: frontend } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm, cache-dependency-path: frontend/package-lock.json }
+      - run: npm ci
+      - run: npm run build
+        env: { NODE_ENV: production }
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: frontend/out }
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: { name: github-pages, url: ${{ steps.deployment.outputs.page_url }} }
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+```
+
+Then in **Settings → Pages** set *Source* to **GitHub Actions** and push the workflow.
+
 ## Phase map (from the master prompt)
 
 | Phase | Where |
