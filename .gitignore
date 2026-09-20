@@ -1,0 +1,28 @@
+# dependencies
+node_modules/
+**/node_modules/
+
+# next.js
+.next/
+out/
+frontend/out/
+frontend/.next/
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# env & secrets
+.env
+backend/data/vault.json
+
+# logs & build artifacts
+*.log
+tsconfig.tsbuildinfo
+
+# os
+.DS_Store
+Thumbs.db
